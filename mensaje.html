@@ -119,7 +119,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const audioVoice = document.getElementById('cacho-audio');
             const audioBG = document.getElementById('bg-music-audio');
-            
+
             const btnStart = document.getElementById('btn-start-msg');
             const btnPlay = document.getElementById('btn-play-msg');
             const playIcon = btnPlay.querySelector('.play-icon');
@@ -132,7 +132,7 @@
 
             // Configurar volúmenes iniciales
             audioVoice.volume = 1.0; // Voz del abuelo al 100% de volumen
-            audioBG.volume = 0.15;   // Música de fondo al 15% de volumen (suave)
+            audioBG.volume = 0.08;   // Música de fondo al 8% de volumen (suave)
 
             // 1. Apertura de puertas e inicio de audio dual
             btnStart.addEventListener('click', () => {
@@ -167,7 +167,7 @@
                         .catch(err => {
                             console.error("Error al reproducir música de fondo:", err);
                         });
-                    
+
                     // Solo reproducimos la voz si no ha finalizado su duración
                     if (audioVoice.currentTime < audioVoice.duration) {
                         audioVoice.play().catch(err => {
@@ -257,19 +257,19 @@
                 const width = progressContainer.clientWidth;
                 const clickX = e.offsetX;
                 const duration = audioVoice.duration;
-                
+
                 if (duration) {
                     const targetTime = (clickX / width) * duration;
                     audioVoice.currentTime = targetTime;
-                    
+
                     // Sincronizar la música de fondo al mismo punto de la voz
                     if (targetTime < audioBG.duration) {
                         audioBG.currentTime = targetTime;
                     }
-                    
+
                     // Actualizar barra de forma inmediata
                     progressBar.style.width = `${(clickX / width) * 100}%`;
-                    
+
                     // Si el reproductor está activo y retrocedemos a un punto donde la voz debe oírse, la reanudamos
                     if (!audioBG.paused) {
                         if (targetTime < duration) {

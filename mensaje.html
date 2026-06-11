@@ -109,16 +109,25 @@
 
     </div>
 
-    <!-- Audio Tag Oculto -->
+    <!-- Audio Tag de Voz (Saludo principal) -->
     <audio id="cacho-audio" preload="auto">
         <source src="mensaje.flac" type="audio/flac">
         <source src="mensaje.mp3" type="audio/mpeg">
     </audio>
 
+    <!-- Audio Tag de Música (Canción de fondo) -->
+    <audio id="bg-music-audio" preload="auto">
+        <source src="musica_mensaje.flac" type="audio/flac">
+        <source src="musica_mensaje.mp3" type="audio/mpeg">
+    </audio>
+
+
     <!-- Script de interacción y reproducción -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const audio = document.getElementById('cacho-audio');
+            const audioVoice = document.getElementById('cacho-audio');
+            const audioBG = document.getElementById('bg-music-audio');
+            
             const btnStart = document.getElementById('btn-start-msg');
             const btnPlay = document.getElementById('btn-play-msg');
             const playIcon = btnPlay.querySelector('.play-icon');
@@ -131,36 +140,53 @@
             const doorsWrapper = document.getElementById('doors-wrapper');
             const galleryWrapper = document.getElementById('gallery-content-wrapper');
 
-            // 1. Apertura de puertas e inicio de audio
+            // Configurar volúmenes iniciales
+            audioVoice.volume = 1.0; // Voz del abuelo al 100% de volumen
+            audioBG.volume = 0.15;   // Música de fondo al 15% de volumen (suave)
+
+            // 1. Apertura de puertas e inicio de audio dual
             btnStart.addEventListener('click', () => {
                 // Disparar las transiciones CSS de apertura
                 doorsWrapper.classList.add('doors-opened');
                 galleryWrapper.classList.add('revealed');
                 document.getElementById('bg-art-frame').classList.add('revealed');
 
-                // Reproducir el saludo de Cacho
-                audio.play()
+                // Reproducir canción de fondo (rige la barra de progreso)
+                audioBG.play()
                     .then(() => {
                         updatePlayerUI(true);
                     })
                     .catch(err => {
-                        console.warn("La reproducción automática falló (requiere click extra):", err);
+                        console.warn("Autoplay de música bloqueado:", err);
                         updatePlayerUI(false);
                     });
+
+                // Reproducir voz de Cacho
+                audioVoice.play().catch(err => {
+                    console.warn("Autoplay de voz bloqueado:", err);
+                });
             });
 
-            // 2. Controles de Play/Pause del reproductor compacto
+            // 2. Controles de Play/Pause del reproductor compacto (Sincronizados)
             btnPlay.addEventListener('click', () => {
-                if (audio.paused) {
-                    audio.play()
+                if (audioBG.paused) {
+                    audioBG.play()
                         .then(() => {
                             updatePlayerUI(true);
                         })
                         .catch(err => {
-                            console.error("Error al reproducir audio:", err);
+                            console.error("Error al reproducir música de fondo:", err);
                         });
+                    
+                    // Solo reproducimos la voz si no ha finalizado la pista
+                    if (audioBG.currentTime < audioVoice.duration) {
+                        audioVoice.play().catch(err => {
+                            console.warn("Error al reanudar voz:", err);
+                        });
+                    }
                 } else {
-                    audio.pause();
+                    audioBG.pause();
+                    audioVoice.pause();
                     updatePlayerUI(false);
                 }
             });
@@ -177,37 +203,74 @@
                 }
             }
 
-            // 3. Sincronización de tiempos y progreso del audio
-            audio.addEventListener('timeupdate', () => {
-                if (audio.duration) {
-                    const progress = (audio.currentTime / audio.duration) * 100;
+            // 3. Sincronización y progreso (Conducidos por la música de fondo)
+            audioBG.addEventListener('timeupdate', () => {
+                // Actualizar barra y marcador en base a la música de fondo
+                if (audioBG.duration) {
+                    const progress = (audioBG.currentTime / audioBG.duration) * 100;
                     progressBar.style.width = `${progress}%`;
                 }
-                timeCurrent.textContent = formatTime(audio.currentTime);
+                timeCurrent.textContent = formatTime(audioBG.currentTime);
+
+                // Sincronización activa de la voz
+                if (!audioBG.paused) {
+                    if (audioBG.currentTime < audioVoice.duration) {
+                        if (audioVoice.paused) {
+                            audioVoice.currentTime = audioBG.currentTime;
+                            audioVoice.play().catch(e => console.warn(e));
+                        } else {
+                            // Si se desvía más de 0.5s (ej. retraso de buffering), resincronizamos
+                            if (Math.abs(audioVoice.currentTime - audioBG.currentTime) > 0.5) {
+                                audioVoice.currentTime = audioBG.currentTime;
+                            }
+                        }
+                    } else {
+                        // Si la música de fondo ya superó la grabación de voz, pausamos la voz
+                        if (!audioVoice.paused) {
+                            audioVoice.pause();
+                        }
+                    }
+                }
             });
 
-            audio.addEventListener('loadedmetadata', () => {
-                timeDuration.textContent = formatTime(audio.duration);
+            audioBG.addEventListener('loadedmetadata', () => {
+                timeDuration.textContent = formatTime(audioBG.duration);
             });
 
-            // Fallback si la metadata ya estaba cargada
-            if (audio.readyState >= 1) {
-                timeDuration.textContent = formatTime(audio.duration);
+            if (audioBG.readyState >= 1) {
+                timeDuration.textContent = formatTime(audioBG.duration);
             }
 
-            audio.addEventListener('ended', () => {
+            // Al finalizar la canción de fondo, reseteamos todo a cero
+            audioBG.addEventListener('ended', () => {
                 updatePlayerUI(false);
                 progressBar.style.width = '0%';
-                audio.currentTime = 0;
+                audioBG.currentTime = 0;
+                audioVoice.currentTime = 0;
+                audioVoice.pause();
             });
 
-            // Barra de progreso interactiva (Scrubbing)
+            // Barra de progreso interactiva (Scrubbing dual)
             progressContainer.addEventListener('click', (e) => {
                 const width = progressContainer.clientWidth;
                 const clickX = e.offsetX;
-                const duration = audio.duration;
+                const duration = audioBG.duration;
+                
                 if (duration) {
-                    audio.currentTime = (clickX / width) * duration;
+                    const targetTime = (clickX / width) * duration;
+                    audioBG.currentTime = targetTime;
+                    
+                    // Si saltamos a una parte donde la voz todavía debería sonar, la actualizamos
+                    if (targetTime < audioVoice.duration) {
+                        audioVoice.currentTime = targetTime;
+                        if (!audioBG.paused && audioVoice.paused) {
+                            audioVoice.play().catch(e => console.warn(e));
+                        }
+                    } else {
+                        // Si saltamos más allá del final de la voz, silenciamos la voz
+                        audioVoice.pause();
+                        audioVoice.currentTime = audioVoice.duration;
+                    }
                 }
             });
 

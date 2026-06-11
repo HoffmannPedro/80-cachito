@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Un Mensaje Especial de Cacho | Festejo 80 años</title>
+    <title>Un Mensaje Especial | Festejo 80 años</title>
     <!-- Google Fonts: Playfair Display (Serif) & Montserrat (Sans-serif) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,7 +31,7 @@
 
         <!-- BOTÓN PLAY ART DECO CENTRAL -->
         <div class="art-deco-container" id="art-deco-container">
-            <button class="art-deco-play-btn" id="btn-start-msg" aria-label="Abrir invitación y escuchar saludo">
+            <button class="art-deco-play-btn" id="btn-start-msg" aria-label="Abrir invitación y escuchar mensaje">
                 <span class="outer-ring"></span>
                 <span class="dashed-ring"></span>
                 <svg viewBox="0 0 24 24" class="play-triangle" width="28" height="28" fill="currentColor">
@@ -80,14 +80,6 @@
                 <div class="minimal-progress-container" id="progress-bar-container">
                     <div class="minimal-progress-bar" id="audio-progress"></div>
                 </div>
-                <div class="minimal-player-footer">
-                    <span class="minimal-title">SALUDO DE CACHO</span>
-                    <div class="minimal-time">
-                        <span id="time-current">0:00</span>
-                        <span class="divider">/</span>
-                        <span id="time-duration">0:00</span>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -134,8 +126,6 @@
             const pauseIcon = btnPlay.querySelector('.pause-icon');
             const progressBar = document.getElementById('audio-progress');
             const progressContainer = document.getElementById('progress-bar-container');
-            const timeCurrent = document.getElementById('time-current');
-            const timeDuration = document.getElementById('time-duration');
             const soundWave = document.getElementById('sound-wave');
             const doorsWrapper = document.getElementById('doors-wrapper');
             const galleryWrapper = document.getElementById('gallery-content-wrapper');
@@ -178,8 +168,8 @@
                             console.error("Error al reproducir música de fondo:", err);
                         });
                     
-                    // Solo reproducimos la voz si no ha finalizado la pista
-                    if (audioBG.currentTime < audioVoice.duration) {
+                    // Solo reproducimos la voz si no ha finalizado su duración
+                    if (audioVoice.currentTime < audioVoice.duration) {
                         audioVoice.play().catch(err => {
                             console.warn("Error al reanudar voz:", err);
                         });
@@ -203,45 +193,57 @@
                 }
             }
 
-            // 3. Sincronización y progreso (Conducidos por la música de fondo)
-            audioBG.addEventListener('timeupdate', () => {
-                // Actualizar barra y marcador en base a la música de fondo
-                if (audioBG.duration) {
-                    const progress = (audioBG.currentTime / audioBG.duration) * 100;
+            // 3. Sincronización y progreso (Conducidos exclusivamente por la VOZ del abuelo)
+            audioVoice.addEventListener('timeupdate', () => {
+                // Actualizar barra en base a la voz de Cacho únicamente
+                if (audioVoice.duration) {
+                    const progress = (audioVoice.currentTime / audioVoice.duration) * 100;
                     progressBar.style.width = `${progress}%`;
                 }
-                timeCurrent.textContent = formatTime(audioBG.currentTime);
 
-                // Sincronización activa de la voz
-                if (!audioBG.paused) {
-                    if (audioBG.currentTime < audioVoice.duration) {
-                        if (audioVoice.paused) {
-                            audioVoice.currentTime = audioBG.currentTime;
-                            audioVoice.play().catch(e => console.warn(e));
-                        } else {
-                            // Si se desvía más de 0.5s (ej. retraso de buffering), resincronizamos
-                            if (Math.abs(audioVoice.currentTime - audioBG.currentTime) > 0.5) {
-                                audioVoice.currentTime = audioBG.currentTime;
-                            }
-                        }
-                    } else {
-                        // Si la música de fondo ya superó la grabación de voz, pausamos la voz
-                        if (!audioVoice.paused) {
-                            audioVoice.pause();
-                        }
+                // Mantener sincronizada la música de fondo con el tiempo de la voz
+                if (!audioVoice.paused && !audioBG.paused) {
+                    if (Math.abs(audioBG.currentTime - audioVoice.currentTime) > 0.5) {
+                        audioBG.currentTime = audioVoice.currentTime;
                     }
                 }
             });
 
-            audioBG.addEventListener('loadedmetadata', () => {
-                timeDuration.textContent = formatTime(audioBG.duration);
+            // Al finalizar la voz, la barra de progreso queda en 100% fija.
+            // La música de fondo (audioBG) sigue sonando sola.
+            audioVoice.addEventListener('ended', () => {
+                console.log("Mensaje de voz de Cacho finalizado. Continúa la música de fondo.");
+                progressBar.style.width = '100%';
             });
 
-            if (audioBG.readyState >= 1) {
-                timeDuration.textContent = formatTime(audioBG.duration);
+            // 4. Atenuación / Ducking del volumen de la música de fondo
+            audioBG.addEventListener('timeupdate', () => {
+                // El mensaje termina a los 58 segundos (duración de la voz)
+                const voiceDuration = (audioVoice.duration && !isNaN(audioVoice.duration)) ? audioVoice.duration : 58;
+                if (audioBG.currentTime >= voiceDuration) {
+                    // Si la música supera la duración de la voz, subimos el volumen al 35% para llenar el vacío
+                    fadeBGVolume(0.35);
+                } else {
+                    // Si está dentro del saludo hablado, bajamos el volumen al 15% para que se entienda la voz
+                    fadeBGVolume(0.15);
+                }
+            });
+
+            function fadeBGVolume(target) {
+                const step = 0.02; // Suavidad de la transición del volumen
+                const current = audioBG.volume;
+                if (Math.abs(current - target) < 0.01) {
+                    audioBG.volume = target;
+                    return;
+                }
+                if (current < target) {
+                    audioBG.volume = Math.min(1.0, current + step);
+                } else {
+                    audioBG.volume = Math.max(0.0, current - step);
+                }
             }
 
-            // Al finalizar la canción de fondo, reseteamos todo a cero
+            // Al finalizar la canción de fondo (que es el fin real de la experiencia), reseteamos todo
             audioBG.addEventListener('ended', () => {
                 updatePlayerUI(false);
                 progressBar.style.width = '0%';
@@ -250,36 +252,36 @@
                 audioVoice.pause();
             });
 
-            // Barra de progreso interactiva (Scrubbing dual)
+            // Barra de progreso interactiva (Scrubbing sobre la voz)
             progressContainer.addEventListener('click', (e) => {
                 const width = progressContainer.clientWidth;
                 const clickX = e.offsetX;
-                const duration = audioBG.duration;
+                const duration = audioVoice.duration;
                 
                 if (duration) {
                     const targetTime = (clickX / width) * duration;
-                    audioBG.currentTime = targetTime;
+                    audioVoice.currentTime = targetTime;
                     
-                    // Si saltamos a una parte donde la voz todavía debería sonar, la actualizamos
-                    if (targetTime < audioVoice.duration) {
-                        audioVoice.currentTime = targetTime;
-                        if (!audioBG.paused && audioVoice.paused) {
-                            audioVoice.play().catch(e => console.warn(e));
+                    // Sincronizar la música de fondo al mismo punto de la voz
+                    if (targetTime < audioBG.duration) {
+                        audioBG.currentTime = targetTime;
+                    }
+                    
+                    // Actualizar barra de forma inmediata
+                    progressBar.style.width = `${(clickX / width) * 100}%`;
+                    
+                    // Si el reproductor está activo y retrocedemos a un punto donde la voz debe oírse, la reanudamos
+                    if (!audioBG.paused) {
+                        if (targetTime < duration) {
+                            if (audioVoice.paused) {
+                                audioVoice.play().catch(e => console.warn(e));
+                            }
+                        } else {
+                            audioVoice.pause();
                         }
-                    } else {
-                        // Si saltamos más allá del final de la voz, silenciamos la voz
-                        audioVoice.pause();
-                        audioVoice.currentTime = audioVoice.duration;
                     }
                 }
             });
-
-            function formatTime(seconds) {
-                if (isNaN(seconds) || !isFinite(seconds)) return "0:00";
-                const mins = Math.floor(seconds / 60);
-                const secs = Math.floor(seconds % 60);
-                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-            }
         });
 
         // 4. Control dinámico de la foto (Se ejecuta ante error de carga)

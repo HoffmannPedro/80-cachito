@@ -116,6 +116,14 @@
 
     <!-- Script de interacción y reproducción -->
     <script>
+        // ==========================================
+        // AJUSTES DE VOLUMEN (Modificá estos valores)
+        // ==========================================
+        const VOLUMEN_VOZ_ABUELO = 1.0;       // Volumen de la voz de Cacho (0.0 a 1.0)
+        const VOLUMEN_MUSICA_HABLANDO = 0.08; // Música de fondo MIENTRAS habla Cacho (0.0 a 1.0)
+        const VOLUMEN_MUSICA_FINAL = 0.35;    // Música de fondo CUANDO TERMINA de hablar Cacho (0.0 a 1.0)
+        // ==========================================
+
         document.addEventListener('DOMContentLoaded', () => {
             const audioVoice = document.getElementById('cacho-audio');
             const audioBG = document.getElementById('bg-music-audio');
@@ -131,8 +139,8 @@
             const galleryWrapper = document.getElementById('gallery-content-wrapper');
 
             // Configurar volúmenes iniciales
-            audioVoice.volume = 1.0; // Voz del abuelo al 100% de volumen
-            audioBG.volume = 0.08;   // Música de fondo al 8% de volumen (suave)
+            audioVoice.volume = VOLUMEN_VOZ_ABUELO;
+            audioBG.volume = VOLUMEN_MUSICA_HABLANDO;
 
             // 1. Apertura de puertas e inicio de audio dual
             btnStart.addEventListener('click', () => {
@@ -221,11 +229,11 @@
                 // El mensaje termina a los 58 segundos (duración de la voz)
                 const voiceDuration = (audioVoice.duration && !isNaN(audioVoice.duration)) ? audioVoice.duration : 58;
                 if (audioBG.currentTime >= voiceDuration) {
-                    // Si la música supera la duración de la voz, subimos el volumen al 35% para llenar el vacío
-                    fadeBGVolume(0.35);
+                    // Si la música supera la duración de la voz, subimos el volumen para llenar el vacío
+                    fadeBGVolume(VOLUMEN_MUSICA_FINAL);
                 } else {
-                    // Si está dentro del saludo hablado, bajamos el volumen al 15% para que se entienda la voz
-                    fadeBGVolume(0.15);
+                    // Si está dentro del saludo hablado, bajamos el volumen para que se entienda la voz
+                    fadeBGVolume(VOLUMEN_MUSICA_HABLANDO);
                 }
             });
 

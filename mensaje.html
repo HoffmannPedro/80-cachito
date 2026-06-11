@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Un Mensaje Especial de Cacho | Festejo 80 años</title>
+    <!-- Google Fonts: Playfair Display (Serif) & Montserrat (Sans-serif) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="mensaje-page-body">
+
+    <!-- ================= MARCO DECORATIVO DE FONDO ART DECO ================= -->
+    <div class="bg-art-frame" id="bg-art-frame">
+        <span class="corner top-left"></span>
+        <span class="corner top-right"></span>
+        <span class="corner bottom-left"></span>
+        <span class="corner bottom-right"></span>
+    </div>
+
+    <!-- ================= PANELES CORREDIZOS DE GALA ================= -->
+    <div class="doors-wrapper" id="doors-wrapper">
+        <div class="door-panel door-left"></div>
+        <div class="door-panel door-right"></div>
+
+        <!-- BOTÓN PLAY ART DECO CENTRAL -->
+        <div class="art-deco-container" id="art-deco-container">
+            <button class="art-deco-play-btn" id="btn-start-msg" aria-label="Abrir invitación y escuchar saludo">
+                <span class="outer-ring"></span>
+                <span class="dashed-ring"></span>
+                <svg viewBox="0 0 24 24" class="play-triangle" width="28" height="28" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                </svg>
+            </button>
+            <span class="art-deco-label">TOCAR PARA ABRIR</span>
+        </div>
+    </div>
+
+    <!-- ================= CONTENIDO REVELADO (GALERÍA DE ARTE) ================= -->
+    <div class="gallery-content-wrapper" id="gallery-content-wrapper">
+
+        <!-- Galería de Fotos (Cuadro de Museo Único con Paspartú) -->
+        <div class="museum-gallery" id="museum-gallery">
+            <div class="art-frame" id="frame-photo">
+                <div class="art-frame-inner">
+                    <img src="abuelo.jpg" alt="Cacho" onerror="hidePhotoFrame()">
+                </div>
+            </div>
+
+            <!-- Fallback Monograma si no se sube la foto -->
+            <div id="gallery-fallback" class="art-frame fallback-frame hidden">
+                <div class="art-frame-inner">
+                    <div class="photo-fallback-placeholder abuelo-fallback">
+                        <span class="monogram">C</span>
+                        <span class="age">80</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reproductor de Audio Minimalista de Trazo Fino -->
+        <div class="minimal-player">
+            <div class="player-btn-wrapper">
+                <button id="btn-play-msg" class="minimal-play-btn" aria-label="Controlar reproducción">
+                    <svg class="play-icon hidden" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M8 5v14l11-7z" />
+                    </svg>
+                    <svg class="pause-icon" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                    </svg>
+                </button>
+            </div>
+            <div class="minimal-player-body">
+                <div class="minimal-progress-container" id="progress-bar-container">
+                    <div class="minimal-progress-bar" id="audio-progress"></div>
+                </div>
+                <div class="minimal-player-footer">
+                    <span class="minimal-title">SALUDO DE CACHO</span>
+                    <div class="minimal-time">
+                        <span id="time-current">0:00</span>
+                        <span class="divider">/</span>
+                        <span id="time-duration">0:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualizador de Onda de Sonido Lineal -->
+        <div class="minimal-wave" id="sound-wave">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+
+    </div>
+
+    <!-- Audio Tag Oculto -->
+    <audio id="cacho-audio" preload="auto">
+        <source src="mensaje.flac" type="audio/flac">
+        <source src="mensaje.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Script de interacción y reproducción -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const audio = document.getElementById('cacho-audio');
+            const btnStart = document.getElementById('btn-start-msg');
+            const btnPlay = document.getElementById('btn-play-msg');
+            const playIcon = btnPlay.querySelector('.play-icon');
+            const pauseIcon = btnPlay.querySelector('.pause-icon');
+            const progressBar = document.getElementById('audio-progress');
+            const progressContainer = document.getElementById('progress-bar-container');
+            const timeCurrent = document.getElementById('time-current');
+            const timeDuration = document.getElementById('time-duration');
+            const soundWave = document.getElementById('sound-wave');
+            const doorsWrapper = document.getElementById('doors-wrapper');
+            const galleryWrapper = document.getElementById('gallery-content-wrapper');
+
+            // 1. Apertura de puertas e inicio de audio
+            btnStart.addEventListener('click', () => {
+                // Disparar las transiciones CSS de apertura
+                doorsWrapper.classList.add('doors-opened');
+                galleryWrapper.classList.add('revealed');
+                document.getElementById('bg-art-frame').classList.add('revealed');
+
+                // Reproducir el saludo de Cacho
+                audio.play()
+                    .then(() => {
+                        updatePlayerUI(true);
+                    })
+                    .catch(err => {
+                        console.warn("La reproducción automática falló (requiere click extra):", err);
+                        updatePlayerUI(false);
+                    });
+            });
+
+            // 2. Controles de Play/Pause del reproductor compacto
+            btnPlay.addEventListener('click', () => {
+                if (audio.paused) {
+                    audio.play()
+                        .then(() => {
+                            updatePlayerUI(true);
+                        })
+                        .catch(err => {
+                            console.error("Error al reproducir audio:", err);
+                        });
+                } else {
+                    audio.pause();
+                    updatePlayerUI(false);
+                }
+            });
+
+            function updatePlayerUI(isPlaying) {
+                if (isPlaying) {
+                    playIcon.classList.add('hidden');
+                    pauseIcon.classList.remove('hidden');
+                    soundWave.classList.add('playing');
+                } else {
+                    playIcon.classList.remove('hidden');
+                    pauseIcon.classList.add('hidden');
+                    soundWave.classList.remove('playing');
+                }
+            }
+
+            // 3. Sincronización de tiempos y progreso del audio
+            audio.addEventListener('timeupdate', () => {
+                if (audio.duration) {
+                    const progress = (audio.currentTime / audio.duration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                }
+                timeCurrent.textContent = formatTime(audio.currentTime);
+            });
+
+            audio.addEventListener('loadedmetadata', () => {
+                timeDuration.textContent = formatTime(audio.duration);
+            });
+
+            // Fallback si la metadata ya estaba cargada
+            if (audio.readyState >= 1) {
+                timeDuration.textContent = formatTime(audio.duration);
+            }
+
+            audio.addEventListener('ended', () => {
+                updatePlayerUI(false);
+                progressBar.style.width = '0%';
+                audio.currentTime = 0;
+            });
+
+            // Barra de progreso interactiva (Scrubbing)
+            progressContainer.addEventListener('click', (e) => {
+                const width = progressContainer.clientWidth;
+                const clickX = e.offsetX;
+                const duration = audio.duration;
+                if (duration) {
+                    audio.currentTime = (clickX / width) * duration;
+                }
+            });
+
+            function formatTime(seconds) {
+                if (isNaN(seconds) || !isFinite(seconds)) return "0:00";
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+        });
+
+        // 4. Control dinámico de la foto (Se ejecuta ante error de carga)
+        function hidePhotoFrame() {
+            document.getElementById('frame-photo').style.display = 'none';
+            document.getElementById('gallery-fallback').classList.remove('hidden');
+        }
+    </script>
+</body>
+
+</html>

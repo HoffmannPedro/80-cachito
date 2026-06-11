@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cacho cumple 80 años | Confirmación de Asistencia</title>
+    <!-- Google Fonts: Playfair Display (Serif Elegante) & Montserrat (Sans-serif Legible) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Música de Fondo -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="musica.mp3" type="audio/mpeg">
+        <source src="musica.flac" type="audio/flac">
+    </audio>
+
+    <!-- Botón Flotante de Música (Disponible tras entrar al festejo) -->
+    <button id="music-toggle" class="music-fab hidden" aria-label="Controlar música" title="Pausar/Reproducir Música">
+        <span class="music-icon-playing">
+            <svg class="icon-music" viewBox="0 0 24 24" width="24" height="24">
+                <path fill="currentColor"
+                    d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6zm-2 16c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
+            </svg>
+        </span>
+        <span class="music-icon-muted hidden">
+            <svg class="icon-music-off" viewBox="0 0 24 24" width="24" height="24">
+                <path fill="currentColor"
+                    d="M4.27 3L3 4.27l9 9v.28c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4v-1.73l6 6L21 20.73 4.27 3zM14 7h4V3h-6v5.18l2 2z" />
+            </svg>
+        </span>
+    </button>
+
+    <!-- Canvas para Confeti -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- ================= PANTALLA DE BIENVENIDA ================= -->
+    <div id="welcome-screen" class="welcome-container">
+        <div class="welcome-card animate-fade-in">
+            <!-- Marco elegante para la Foto de Cacho -->
+            <div class="photo-frame">
+                <!-- Si foto.jpg existe se mostrará. Si falla, el fallback CSS mostrará un hermoso monograma dorado -->
+                <img id="cacho-photo" src="foto.jpg" alt="Cacho"
+                    onerror="this.style.display='none'; document.getElementById('photo-fallback').style.display='flex';">
+                <div id="photo-fallback" class="photo-fallback-placeholder" style="display: none;">
+                    <span class="monogram">C</span>
+                    <span class="age">80</span>
+                </div>
+            </div>
+
+            <h1 class="welcome-title">Cacho cumple 80 años</h1>
+
+            <button id="btn-enter" class="btn btn-primary btn-large btn-welcome animate-pulse">
+                Entrar al festejo
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= CONTENIDO PRINCIPAL (FORMULARIO) ================= -->
+    <div id="main-content" class="main-container hidden">
+        <header class="main-header">
+            <div class="header-decoration">✦ ✦ ✦</div>
+            <h2 class="main-title">¡Te Esperamos!</h2>
+            <div class="header-divider"></div>
+        </header>
+
+        <!-- SECCIÓN: DETALLES DEL EVENTO -->
+        <section class="card section-details">
+            <h3 class="section-title">Detalles del Evento</h3>
+            <div class="details-grid">
+                <!-- Fecha -->
+                <div class="detail-item">
+                    <div class="detail-icon-wrapper">
+                        <svg class="detail-svg" viewBox="0 0 24 24" width="24" height="24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </div>
+                    <div class="detail-info">
+                        <strong>Fecha</strong>
+                        <span>Domingo, 2 de Agosto de 2026</span>
+                    </div>
+                </div>
+                <!-- Hora -->
+                <div class="detail-item">
+                    <div class="detail-icon-wrapper">
+                        <svg class="detail-svg" viewBox="0 0 24 24" width="24" height="24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <div class="detail-info">
+                        <strong>Hora</strong>
+                        <span>12:30 Hs</span>
+                    </div>
+                </div>
+                <!-- Lugar -->
+                <div class="detail-item">
+                    <div class="detail-icon-wrapper">
+                        <svg class="detail-svg" viewBox="0 0 24 24" width="24" height="24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                    </div>
+                    <div class="detail-info">
+                        <strong>Lugar</strong>
+                        <span>Centro Gallego<br><small style="color: var(--color-text-light);">Canning 180, José C.
+                                Paz</small></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: FORMULARIO RSVP -->
+        <section class="card section-rsvp">
+            <h3 class="section-title">Confirmar Asistencia</h3>
+            <form id="rsvp-form" novalidate>
+                <!-- Nombre y Apellido -->
+                <div class="form-group">
+                    <label for="input-fullname" class="form-label">Nombre y Apellido <span
+                            class="required">*</span></label>
+                    <input type="text" id="input-fullname" name="fullname" class="form-control"
+                        placeholder="Ej: Juan Pérez" required>
+                    <div class="error-message" id="error-fullname">Este campo es obligatorio</div>
+                </div>
+
+                <!-- Familia -->
+                <div class="form-group">
+                    <label for="input-group" class="form-label">Familia <span class="required">*</span></label>
+                    <input type="text" id="input-group" name="group" class="form-control"
+                        placeholder="Ej: Familia Pérez" required>
+                    <div class="error-message" id="error-group">Este campo es obligatorio</div>
+                </div>
+
+                <!-- ¿Asistirá? -->
+                <div class="form-group">
+                    <label class="form-label">¿Asistirá al festejo? <span class="required">*</span></label>
+                    <div class="radio-toggle-group">
+                        <input type="radio" id="rsvp-yes" name="attendance" value="si" required>
+                        <label for="rsvp-yes" class="radio-label">
+                            <span class="radio-custom"></span>
+                            Sí, asistiré
+                        </label>
+
+                        <input type="radio" id="rsvp-no" name="attendance" value="no" required>
+                        <label for="rsvp-no" class="radio-label">
+                            <span class="radio-custom"></span>
+                            No asistiré
+                        </label>
+                    </div>
+                    <div class="error-message" id="error-attendance">Por favor, seleccione una opción</div>
+                </div>
+
+                <!-- PANEL CONDICIONAL: CANTIDAD DE INVITADOS (Se muestra solo si Asiste = Sí) -->
+                <div id="attendance-details-panel" class="conditional-panel hidden">
+                    <div class="form-row">
+                        <!-- Cantidad Adultos -->
+                        <div class="form-group col-half">
+                            <label for="input-adults" class="form-label">Cantidad de Adultos <span
+                                    class="required">*</span></label>
+                            <div class="number-stepper">
+                                <button type="button" class="btn-step" data-action="decrease"
+                                    data-target="input-adults">−</button>
+                                <input type="number" id="input-adults" name="adults" class="form-control text-center"
+                                    min="1" value="1" required readonly>
+                                <button type="button" class="btn-step" data-action="increase"
+                                    data-target="input-adults">+</button>
+                            </div>
+                            <div class="error-message" id="error-adults">Mínimo 1 adulto</div>
+                        </div>
+
+                        <!-- Cantidad Menores -->
+                        <div class="form-group col-half">
+                            <label for="input-minors" class="form-label">Cantidad de Menores</label>
+                            <div class="number-stepper">
+                                <button type="button" class="btn-step" data-action="decrease"
+                                    data-target="input-minors">−</button>
+                                <input type="number" id="input-minors" name="minors" class="form-control text-center"
+                                    min="0" value="0" readonly>
+                                <button type="button" class="btn-step" data-action="increase"
+                                    data-target="input-minors">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campos de Nombres Generados Dinámicamente -->
+                    <div id="dynamic-names-group" class="form-group">
+                        <label class="form-label">Nombres de los asistentes <span class="required">*</span></label>
+                        <p class="form-help">Por favor, ingresá el nombre de cada persona que asistirá.</p>
+                        <div id="attendees-names-list">
+                            <!-- Los inputs se generarán por JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comentarios -->
+                <div class="form-group">
+                    <label for="input-comments" class="form-label">Comentarios (Opcional)</label>
+                    <textarea id="input-comments" name="comments" class="form-control form-textarea"
+                        placeholder=""></textarea>
+                </div>
+
+                <!-- Botón de Envío -->
+                <button type="submit" id="btn-submit" class="btn btn-primary btn-full">
+                    Confirmar asistencia
+                </button>
+            </form>
+        </section>
+
+        <footer class="main-footer">
+            <a href="admin.html" class="admin-link-discreet">Panel de Control</a>
+        </footer>
+    </div>
+
+    <!-- ================= PANTALLA DE CONFIRMACIÓN (ÉXITO) ================= -->
+    <div id="success-screen" class="success-container hidden">
+        <div class="success-card animate-scale-up">
+            <div class="success-icon-wrapper-svg">
+                <svg class="success-svg" viewBox="0 0 24 24" width="64" height="64" fill="none"
+                    stroke="var(--color-gold-main)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="16 12 12 8 8 12"></polyline>
+                    <line x1="12" y1="16" x2="12" y2="8"></line>
+                </svg>
+            </div>
+            <h1 class="success-title">¡Muchas gracias por responder!</h1>
+            <p class="success-subtitle">Nos vemos en el cumpleaños de Cacho.</p>
+            <div class="success-divider">✦ ✦ ✦</div>
+            <p class="success-footer-text">Si necesitás realizar algún cambio, podés volver a enviar el formulario con
+                los mismos datos.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

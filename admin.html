@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración | Cacho 80</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="admin-body">
+
+    <!-- ================= PANTALLA DE LOGIN ================= -->
+    <div id="admin-login-screen" class="admin-login-container">
+        <div class="welcome-card animate-fade-in">
+            <div class="photo-fallback-placeholder mini-monogram" style="width: 80px; height: 80px; margin-bottom: 16px;">
+                <span class="monogram" style="font-size: 2.2rem;">C</span>
+            </div>
+            <h1 class="welcome-title" style="font-size: 1.6rem; margin-bottom: 8px;">Panel de Control</h1>
+            <p class="welcome-subtitle" style="font-size: 0.9rem; margin-bottom: 24px;">Confirmaciones de Asistencia - Cacho 80</p>
+            
+            <form id="admin-login-form" style="width: 100%;">
+                <div class="form-group" style="text-align: left;">
+                    <label for="admin-password" class="form-label">Contraseña de Acceso</label>
+                    <input type="password" id="admin-password" class="form-control" placeholder="Ingresá la contraseña" required>
+                    <div class="error-message" id="login-error-msg">Contraseña incorrecta. Intentá de nuevo.</div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full">
+                    Entrar al panel
+                </button>
+            </form>
+            
+            <a href="index.html" style="margin-top: 20px; font-size: 0.85rem; color: var(--color-gold-dark); text-decoration: none; font-weight: 600;">➔ Volver a la Invitación</a>
+        </div>
+    </div>
+
+    <!-- ================= PANEL DE CONTROL PRINCIPAL ================= -->
+    <div id="admin-dashboard" class="admin-dashboard-container hidden">
+        <header class="admin-header-bar">
+            <div>
+                <h1 class="admin-dashboard-title">Cacho 80 - Lista de Invitados</h1>
+                <p class="admin-dashboard-subtitle">Control y estadísticas de confirmaciones</p>
+            </div>
+            <div class="admin-header-actions">
+                <button id="btn-refresh" class="btn btn-secondary-outline btn-icon-flex">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    Actualizar
+                </button>
+                <button id="btn-logout" class="btn btn-logout-danger btn-icon-flex">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                    Cerrar Sesión
+                </button>
+            </div>
+        </header>
+
+        <!-- SECCIÓN DE ESTADÍSTICAS -->
+        <section class="admin-stats-grid">
+            <!-- Tarjeta: Confirmados Totales -->
+            <div class="stat-card gold-border">
+                <div class="stat-icon-wrapper circle-gold">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Total Confirmados</span>
+                    <strong class="stat-value" id="stat-total-confirmed">0</strong>
+                    <span class="stat-sub-label">Asistentes en total</span>
+                </div>
+            </div>
+
+            <!-- Tarjeta: Adultos -->
+            <div class="stat-card">
+                <div class="stat-icon-wrapper circle-adult">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Adultos</span>
+                    <strong class="stat-value" id="stat-adults">0</strong>
+                    <span class="stat-sub-label">Mayores confirmados</span>
+                </div>
+            </div>
+
+            <!-- Tarjeta: Menores -->
+            <div class="stat-card">
+                <div class="stat-icon-wrapper circle-minor">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M6 21v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1"></path><circle cx="12" cy="18" r="0.5" fill="currentColor"></circle></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Menores</span>
+                    <strong class="stat-value" id="stat-minors">0</strong>
+                    <span class="stat-sub-label">Niños confirmados</span>
+                </div>
+            </div>
+
+            <!-- Tarjeta: No Asisten -->
+            <div class="stat-card">
+                <div class="stat-icon-wrapper circle-declined">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="17" y1="8" x2="23" y2="14"></line><line x1="23" y1="8" x2="17" y2="14"></line></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">No Asistirán</span>
+                    <strong class="stat-value" id="stat-declined">0</strong>
+                    <span class="stat-sub-label">Respuestas negativas</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTROLES DE FILTRO Y BÚSQUEDA -->
+        <section class="card admin-controls-card">
+            <div class="controls-layout">
+                <!-- Buscador -->
+                <div class="search-box">
+                    <span class="search-icon">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </span>
+                    <input type="text" id="admin-search-input" class="form-control search-input" placeholder="Buscar por nombre o familia...">
+                </div>
+                
+                <!-- Botones de Filtro -->
+                <div class="filter-buttons-group">
+                    <button class="btn-filter active" data-filter="all">Todos (<span id="count-all">0</span>)</button>
+                    <button class="btn-filter" data-filter="yes">Asisten (<span id="count-yes">0</span>)</button>
+                    <button class="btn-filter" data-filter="no">No Asisten (<span id="count-no">0</span>)</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE LISTADO COMPACTO DE INVITADOS (En reemplazo de la tabla) -->
+        <main id="guests-list" class="admin-guests-list-container">
+            <div class="list-info-message">Cargando confirmaciones... ⏳</div>
+        </main>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
